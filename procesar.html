@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuarios</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Lista de Usuarios</h2>
+        <a class="btn" href="formulario.php">Agregar Usuario</a>
+
+        <table>
+            <tr>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Mayor de Edad</th>
+                <th>Acciones</th>
+            </tr>
+
+            <?php
+            include 'conexionBd.php';
+
+            // Manejo de errores en la consulta
+            try {
+                $result = $conexDB->query("SELECT id, nombre, edad, IF(edad >= 18, 'Sí', 'No') AS mayor_edad FROM usuarios");
+
+                if ($result === false) {
+                    throw new Exception("Error en la consulta: " . $conexDB->error);
+                }
+
+                // Generar filas de la tabla
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>
+                            <td>{$row['nombre']}</td>
+                            <td>{$row['edad']}</td>
+                            <td>{$row['mayor_edad']}</td>
+                            <td>
+                                <a href='formulario.php?id={$row['id']}'>Editar</a>
+                                <a href='procesar.php?eliminar={$row['id']}' onclick='return confirm(\"¿Seguro que quieres eliminar este usuario?\")'>Eliminar</a>
+                            </td>
+                          </tr>";
+                }
+            } catch (Exception $e) {
+                echo "<tr><td colspan='4'>Error: " . $e->getMessage() . "</td></tr>";
+            }
+
+            
+            $conexDB->close();
+            ?>
+        </table>
+    </div>
+</body>
+</html>
